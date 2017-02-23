@@ -1,38 +1,54 @@
 <?php
 
+// namespace App;
+
+// use ReflectionClass;
+
+// class a {
+// 	public function __construct() {
+// 		echo 2;
+// 	}
+// }
+
+// //创建一个新的实例
+// $r = new ReflectionClass("App\a");
+// $r->newInstance();
+
+
+// exit;
 
 $app = new Illuminate\Foundation\Application(
 			realpath(__DIR__.'/../')
 	);
 
-$obj = new Illuminate\Cache\Cache;
-
-$obj->registerCacheHandle('Memcache', function(){
+// $app->singleton('config',function(){
+// 	$obj = new Illuminate\Foundation\Config\Config();
+// 	$obj->setConfigPath(ROOT_PATH.'/config');
 	
-	$cache   = new Illuminate\Cache\Memcache\MemcacheStore();
+// 	return $obj;
+// });
+
+// $app->singleton('request',function(){
+// 	$request = new Illuminate\Route\Request\Request();
+// 	return $request;
+// });
+
+// $app->singleton('route',function(){
+// 	$route = new Illuminate\Route\Route();
+// 	$route->setModel(2);
 	
-	$connect = new Illuminate\Cache\Memcache\MemcacheConnect;
-	$servers = array(
-			array(
-					'host' => '127.0.0.1',
-					'port' => 11211,
-					'persistent' => NULL,
-					'weight'=> 1
-			)
-	);
-	$memcache = $connect->connect($servers);
-	$cache->setConnectId($memcache);
-		
-	return $cache;
-});
-$cache = $obj->get('Memcache');
-$bool = $cache->set('aaaaa','aaaaaaaaaaaaaaaaaa',0);
-$content = $cache->get('aaaaa');
+// 	return $route;
+// });
 
 
-var_dump($content);
-//http
-//exceptionhandle
+//$obj = app('route');
+//$obj->handle();
 
+//var_dump(app('config'));
+$obj = app('config');
+$obj->setConfigPath(ROOT_PATH.'/config');
+$val = $obj->load('app')->get('db');
 
+var_dump($val);
+//var_dump($obj->handle());
 return $app;

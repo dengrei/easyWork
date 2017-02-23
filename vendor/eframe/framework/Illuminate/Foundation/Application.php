@@ -1,7 +1,6 @@
 <?php
 namespace Illuminate\Foundation;
 
-use Closure;
 use Illuminate\Container\Container;
 class Application extends Container
 {
@@ -32,6 +31,8 @@ class Application extends Container
 		$this->register(new EventServiceProvider($this));
 	
 		//$this->register(new RoutingServiceProvider($this));
+		
+		$this->registerAlias();
 	}
 	/**
 	 *
@@ -45,8 +46,11 @@ class Application extends Container
 	{
 		$this->basePath = rtrim($basePath, '\/');
 		
+		$this->bindPathsInContainer();
+		
 		return $this;
 	}
+	
 	public function register($provider, $options = [], $force = false)
 	{
 		$provider->register();
@@ -65,5 +69,108 @@ class Application extends Container
 		$this->serviceProviders[] = $provider;
 	
 		$this->loadedProviders[$class] = true;
+	}
+	/**
+	 *
+	|+----------------------------------------
+	| 绑定应用结构目录
+	|+----------------------------------------
+	 */
+	protected function bindPathsInContainer()
+	{
+		$this->instance('path', $this->path());
+	
+		foreach (['base', 'config', 'database', 'lang', 'public', 'storage'] as $path) {
+			$this->instance('path.'.$path, $this->{$path.'Path'}());
+		}
+	}
+	/**
+	 *
+	|+----------------------------------------
+	| 应用目录
+	| @return string
+	|+----------------------------------------
+	 */
+	public function path()
+	{
+		return $this->basePath.DIRECTORY_SEPARATOR.'/app';
+	}
+	/**
+	 *
+	|+----------------------------------------
+	| 应用根目录
+	| @return string
+	|+----------------------------------------
+	 */
+	public function basePath()
+	{
+		return $this->basePath;
+	}
+	/**
+	 *
+	 |+----------------------------------------
+	 | 配置目录
+	 | @return string
+	 |+----------------------------------------
+	 */
+	public function configPath()
+	{
+		return $this->basePath.DIRECTORY_SEPARATOR.'/config';
+	}
+	/**
+	 *
+	 |+----------------------------------------
+	 | 数据库目录
+	 | @return string
+	 |+----------------------------------------
+	 */
+	public function databasePath()
+	{
+		return $this->basePath.DIRECTORY_SEPARATOR.'/database';
+	}
+	/**
+	 *
+	 |+----------------------------------------
+	 | 语言目录
+	 | @return string
+	 |+----------------------------------------
+	 */
+	public function langPath()
+	{
+		return $this->basePath.DIRECTORY_SEPARATOR.'/lang';
+	}
+	/**
+	 *
+	 |+----------------------------------------
+	 | 公共资源目录
+	 | @return string
+	 |+----------------------------------------
+	 */
+	public function publicPath()
+	{
+		return $this->basePath.DIRECTORY_SEPARATOR.'/public';
+	}
+	/**
+	 *
+	 |+----------------------------------------
+	 | 数据存储目录
+	 | @return string
+	 |+----------------------------------------
+	 */
+	public function storagePath()
+	{
+		return $this->basePath.DIRECTORY_SEPARATOR.'/storage';
+	}
+	protected function registerAlias()
+	{
+		$alias = [
+				'config' =>'Illuminate\Foundation\Config\Config'
+		];
+		
+		foreach($alias as $key=>$namespace){
+			if(!isset($this->aliases[$key])){
+				$this->aliases[$key] = $namespace;
+			}
+		}
 	}
 }

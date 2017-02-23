@@ -13,5 +13,6 @@ return array(
 		//系统函数库
 		
 		//自定义扩展函数库
-		'1d1b89d124cc9cb8219922c9d5569198' => $baseDir . '/functions/function.php'
+		'1d1b89d124cc9cb8219922c9d5569198' => $baseDir . '/functions/function.php',
+		'1d1b89d124cc9cb8219922c9d5569198' => $vendorDir . '/eframe/framework/Illuminate/Foundation/Helpers.php'
 );
