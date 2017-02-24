@@ -2,6 +2,8 @@
 namespace Illuminate\Foundation;
 
 use Illuminate\Container\Container;
+use Illuminate\Route\RoutingServiceProvider;
+
 class Application extends Container
 {
 	protected  $basePath;
@@ -17,6 +19,7 @@ class Application extends Container
 		if ($basePath) {
 			$this->setBasePath($basePath);
 		}
+		
 	}
 	protected function registerBaseBindings()
 	{
@@ -28,9 +31,9 @@ class Application extends Container
 	}
 	protected function registerBaseServiceProviders()
 	{
-		$this->register(new EventServiceProvider($this));
+		//$this->register(new EventServiceProvider($this));
 	
-		//$this->register(new RoutingServiceProvider($this));
+		$this->register(new RoutingServiceProvider($this));
 		
 		$this->registerAlias();
 	}
@@ -65,7 +68,7 @@ class Application extends Container
 	{
 		$class = get_class($provider);
 		//$this['events']->fire($class = get_class($provider), [$provider]);
-	
+
 		$this->serviceProviders[] = $provider;
 	
 		$this->loadedProviders[$class] = true;
@@ -161,16 +164,44 @@ class Application extends Container
 	{
 		return $this->basePath.DIRECTORY_SEPARATOR.'/storage';
 	}
+	/**
+	 *
+	|+----------------------------------------
+	| 创建对象并自动执行 bootstrap
+	| @param array $bootstrappers
+	|+----------------------------------------
+	 */
+	public function bootstrapWith(array $bootstrappers)
+	{
+		
+		foreach ($bootstrappers as $bootstrapper) {
+			$this->make($bootstrapper)->bootstrap($this);
+		}
+	}
+	/**
+	 *
+	|+----------------------------------------
+	|
+	|+----------------------------------------
+	 */
+	public function handle()
+	{
+		echo 'handle';
+	}
+	/**
+	 *
+	|+----------------------------------------
+	| 注册核心类库
+	|+----------------------------------------
+	 */
 	protected function registerAlias()
 	{
 		$alias = [
 				'config' =>'Illuminate\Foundation\Config\Config'
 		];
 		
-		foreach($alias as $key=>$namespace){
-			if(!isset($this->aliases[$key])){
-				$this->aliases[$key] = $namespace;
-			}
+		foreach($alias as $key=>$alia){
+			$this->alias($key, $alia);
 		}
 	}
 }

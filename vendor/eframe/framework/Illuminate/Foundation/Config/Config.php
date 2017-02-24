@@ -12,9 +12,11 @@ namespace Illuminate\Foundation\Config;
 
 use ArrayAccess;
 use Exception;
+use Illuminate\Foundation\Application;
 
 class Config implements ArrayAccess
 {
+	protected $app;
 	/**
 	 *
 	|+----------------------------------------
@@ -34,14 +36,6 @@ class Config implements ArrayAccess
 	/**
 	 *
 	|+----------------------------------------
-	| 配置文件目录
-	| @var string
-	|+----------------------------------------
-	 */
-	protected $configPath;
-	/**
-	 *
-	|+----------------------------------------
 	| 配置文件数据
 	| @var array
 	|+----------------------------------------
@@ -55,10 +49,17 @@ class Config implements ArrayAccess
 	|+----------------------------------------
 	 */
 	protected $accessFix = ['.php','.ini'];
-	
-	public function __construct($options = [])
+
+	/**
+	 *
+	|+----------------------------------------
+	| 初始化
+	| @param Application $app
+	|+----------------------------------------
+	 */
+	public function bootstrap(Application $app)
 	{
-		
+		$this->app = $app;
 	}
 	/**
 	 *
@@ -70,17 +71,6 @@ class Config implements ArrayAccess
 	public function setConfigFix($fix)
 	{
 		$this->fix  = $fix;
-	}
-	/**
-	 *
-	|+----------------------------------------
-	| 设置配置文件目录
-	| @param string $path
-	|+----------------------------------------
-	 */
-	public function setConfigPath($path)
-	{
-		$this->configPath = $path;
 	}
 	/**
 	 * @param $offset
@@ -102,22 +92,18 @@ class Config implements ArrayAccess
 	 | @return NULL|mixed
 	 |+----------------------------------------
 	  */
-	 public function offsetGet ($key)
+	 public function offsetGet ($keyArr)
 	 {
 	 	$value = null;
-	 	 
-	 	if(strpos($key, '.') === false){
-	 		$value = $this->data[$key];
-	 	}else{
-	 		$keyArr = explode('.', $key);
-	 		foreach($keyArr as $k){
-	 			if(is_null($value)){
-	 				$value = $this->offsetExists($k);
-	 			}else{
-	 				$value = $value[$k];
-	 			}
+	 	
+	 	foreach($keyArr as $k){
+	 		if(is_null($value)){
+	 			$value = $this->offsetExists($k);
+	 		}else{
+	 			$value = $value[$k];
 	 		}
 	 	}
+	 	
 	 	return $value;
 	 }
 	
@@ -148,22 +134,24 @@ class Config implements ArrayAccess
 	 /**
 	  *
 	 |+----------------------------------------
-	 | 获取配置缓存文件 KEY支持获取多维数组的值 db.dervice.mysql
+	 | 获取配置缓存文件 KEY支持获取多维数组的值 app.db.dervice.mysql,第一位作为文件名使用
 	 | @param string $key
 	 | @return NULL|mixed
 	 |+----------------------------------------
 	  */
 	 public function get($key)
 	 {
+	 	$keyArr  = $this->getFileName($key);
+	 	
 	 	$filename= $this->getFile();
-	 	$file    = $this->configPath.'/'.$filename;
+	 	$file    = app()->configPath().'/'.$filename;
 	 	
 	 	if(file_exists($file)){
-	 		if(empty($data)){
+	 		if(empty($this->data)){
 	 			$this->data = require $file;
 	 		}
 	 		
-	 		$value = $this->offsetGet($key);
+	 		$value = $this->offsetGet($keyArr);
 	 		return $value;
 	 	}
 	 }
@@ -186,5 +174,21 @@ class Config implements ArrayAccess
 	 	}
 	 	
 	 	return $this->name.$this->fix;
+	 }
+	 /**
+	  *
+	 |+----------------------------------------
+	 | 获取文件名，如：app.db,则是获取app配置文件中db的值
+	 | @param string $key
+	 |+----------------------------------------
+	  */
+	 protected function getFileName($key)
+	 {
+	 	$keyArr = explode('.', $key);
+	 	if(!$this->name){
+	 		$this->name = $keyArr[0];
+	 		array_shift($keyArr);
+	 	}
+	 	return $keyArr;
 	 }
 }

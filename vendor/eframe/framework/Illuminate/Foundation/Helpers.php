@@ -13,3 +13,14 @@ if(! function_exists('app')){
 		return $instance->make($make,$parameter);
 	}
 }
+if(! function_exists('config')){
+	function config($key = null)
+	{
+		$instance = app('config');
+		if(is_null($key)){
+			return $instance;
+		}
+
+		return $instance->get($key);
+	}
+}
