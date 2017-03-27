@@ -197,7 +197,9 @@ class Application extends Container
 	protected function registerAlias()
 	{
 		$alias = [
-				'config' =>'Illuminate\Foundation\Config\Config'
+				'config' =>'Illuminate\Foundation\Config\Config',
+				'route'  =>'Illuminate\Route\Route',
+				'request'  =>'Illuminate\Route\Request\Request'
 		];
 		
 		foreach($alias as $key=>$alia){

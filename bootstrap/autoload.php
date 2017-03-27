@@ -3,6 +3,7 @@
 define('APP_START', microtime(true));
 define('ROOT_PATH', dirname(__DIR__));
 define('LOG_PATH', ROOT_PATH.'/storage/logs');
+define('CORE_PATH', ROOT_PATH.'/vendor/eframe/framework');
 
 //error_reporting(0);
 
